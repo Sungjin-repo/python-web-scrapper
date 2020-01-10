@@ -1,5 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
+import urllib3
+
+# disable any Python warnings: InsecureRequestWarning: Unverified HTTPS request is being made
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 LIMIT = 50
 URL = f'https://www.indeed.com/jobs?q=python&l=United+States&limit={LIMIT}'
@@ -20,7 +24,7 @@ def extract_job(html):
     title = html.find('div', {'class':'title'}).find('a')['title']
     company = html.find('span', {'class': 'company'})
     if company is not None:
-        company_anchor = company.find('a')
+        company_anchor = company.find('a ')
         if company_anchor is not None:
             company = str(company_anchor.string).strip()
         else:
@@ -39,7 +43,7 @@ def extract_job(html):
 def extract_jobs(last_page):
     jobs = []
     for page in range(last_page):
-        print(f"Scrapping page {page}")
+        print(f"Scrapping Indeed page {page}")
         resul = requests.get(f"{URL}&start={page*LIMIT}", verify=False)
         soup = BeautifulSoup(resul.text, 'html.parser')
         results = soup.find_all('div', {'class':'jobsearch-SerpJobCard'})
